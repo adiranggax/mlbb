@@ -1,28 +1,25 @@
 const validasi = require("../lib/validasi");
 
-module.exports = async function(req, res) {
-  const { id, serverid } = req.query;
+module.exports = async function(req,res){
 
-  if (!id || !serverid) {
-    return res.status(400).json({
-      status: false,
-      message: "ID atau Server kosong"
-    });
-  }
+const { id, serverid } = req.query;
 
-  try {
-    const data = await validasi(id, serverid);
+try{
 
-    res.status(200).json({
-      status: true,
-      nickname: data.nickname,
-      country: data.country
-    });
+const data = await validasi(id,serverid);
 
-  } catch (err) {
-    res.status(500).json({
-      status: false,
-      message: err.toString()
-    });
-  }
-};
+res.json({
+status:true,
+nickname:data.nickname || "Unknown"
+});
+
+}catch(err){
+
+res.json({
+status:false,
+message:err.toString()
+});
+
+}
+
+}
