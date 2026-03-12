@@ -1,76 +1,190 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>MLBB ID Checker</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MLBB Topup Checker</title>
 
 <style>
-
+*{box-sizing:border-box}
 body{
-font-family:Arial;
-background:#0f172a;
+margin:0;
+font-family:Arial, sans-serif;
 color:white;
+background:linear-gradient(120deg,#0f172a,#1e3a8a,#0f172a);
+background-size:400% 400%;
+animation:bgmove 10s ease infinite;
+display:flex;
+align-items:center;
+justify-content:center;
+height:100vh;
+}
+@keyframes bgmove{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+.card{
+background:rgba(15,23,42,.9);
+padding:30px;
+border-radius:14px;
+width:360px;
 text-align:center;
-padding:40px;
+box-shadow:0 10px 40px rgba(0,0,0,.6);
+}
+
+.hero{
+width:90px;
+height:90px;
+border-radius:50%;
+margin-bottom:10px;
+border:3px solid #3b82f6;
+}
+
+h2{
+margin:10px 0 20px;
 }
 
 input{
-padding:10px;
-margin:5px;
+width:100%;
+padding:11px;
 border-radius:6px;
 border:none;
+margin-bottom:10px;
+font-size:15px;
 }
 
 button{
-padding:10px 20px;
-background:#2563eb;
+width:100%;
+padding:11px;
 border:none;
-color:white;
+background:#2563eb;
 border-radius:6px;
+color:white;
+font-weight:bold;
 cursor:pointer;
 }
 
-#result{
-margin-top:20px;
-font-size:18px;
+button:hover{
+background:#1d4ed8;
 }
 
-</style>
+#loading{
+display:none;
+margin-top:12px;
+}
 
+.spinner{
+border:4px solid #334155;
+border-top:4px solid #3b82f6;
+border-radius:50%;
+width:26px;
+height:26px;
+margin:auto;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0)}
+100%{transform:rotate(360deg)}
+}
+
+.result{
+margin-top:15px;
+font-size:16px;
+line-height:1.6;
+}
+</style>
 </head>
 
 <body>
 
+<div class="card">
+
+<img class="hero" src="https://static.wikia.nocookie.net/mobile-legends/images/6/6c/Alucard.jpg" alt="hero">
+
 <h2>MLBB Nickname Checker</h2>
 
-<input id="id" placeholder="User ID">
-<input id="server" placeholder="Server ID">
+<input id="gameid" placeholder="Example: 130482121(2662)">
 
-<br><br>
+<button onclick="cek()">Check Player</button>
 
-<button onclick="cek()">Check</button>
+<div id="loading">
+<div class="spinner"></div>
+</div>
 
-<div id="result"></div>
+<div class="result" id="result"></div>
+
+</div>
 
 <script>
 
+function parseID(text){
+let m=text.match(/(\\d+)\\((\\d+)\\)/)
+if(!m)return null
+return {id:m[1],server:m[2]}
+}
+
+function flag(code){
+const map={
+MY:"🇲🇾",
+ID:"🇮🇩",
+PH:"🇵🇭",
+SG:"🇸🇬",
+TH:"🇹🇭",
+VN:"🇻🇳"
+}
+return map[code]||"🌍"
+}
+
+function region(server){
+server=parseInt(server)
+
+if(server<2000) return "Asia"
+if(server<4000) return "SEA"
+if(server<6000) return "Europe"
+if(server<8000) return "America"
+return "Global"
+}
+
 async function cek(){
 
-let id=document.getElementById("id").value
-let server=document.getElementById("server").value
+let input=document.getElementById("gameid").value
+let parsed=parseID(input)
 
-let res=await fetch(`/api/validasi?id=${id}&serverid=${server}`)
+if(!parsed){
+document.getElementById("result").innerHTML="Format salah<br>Gunakan: 12345678(1234)"
+return
+}
+
+document.getElementById("loading").style.display="block"
+document.getElementById("result").innerHTML=""
+
+try{
+
+let res=await fetch(`/api/validasi?id=${parsed.id}&serverid=${parsed.server}`)
 let data=await res.json()
+
+document.getElementById("loading").style.display="none"
 
 if(data.status){
 
-document.getElementById("result").innerHTML =
-"Nickname : " + (data.nickname || data["in-game-nickname"])
+document.getElementById("result").innerHTML=
+`🎮 Nickname : <b>${data.nickname}</b><br>
+${flag(data.country)} Country : ${data.country}<br>
+🌍 Region : ${region(parsed.server)}`
 
 }else{
 
-document.getElementById("result").innerHTML =
-"Error : " + data.message
+document.getElementById("result").innerHTML="Player tidak ditemukan"
+
+}
+
+}catch{
+
+document.getElementById("loading").style.display="none"
+document.getElementById("result").innerHTML="Server error"
 
 }
 
