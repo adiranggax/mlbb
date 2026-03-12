@@ -64,13 +64,13 @@ let data=await res.json()
 
 if(data.status){
 
-document.getElementById("result").innerHTML=
-"Nickname : "+data.nickname
+document.getElementById("result").innerHTML =
+"Nickname : " + (data.nickname || data["in-game-nickname"])
 
 }else{
 
-document.getElementById("result").innerHTML=
-"Error : "+data.message
+document.getElementById("result").innerHTML =
+"Error : " + data.message
 
 }
 
