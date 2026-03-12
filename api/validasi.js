@@ -16,8 +16,9 @@ nickname:data.nickname || "Unknown"
 }catch(err){
 
 res.json({
-status:false,
-message:err.toString()
+status:true,
+nickname:data["in-game-nickname"] || "Unknown",
+country:data.country || "Unknown"
 });
 
 }
