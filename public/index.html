@@ -106,7 +106,8 @@ line-height:1.6;
 
 <h2>MLBB Nickname Checker</h2>
 
-<input id="gameid" placeholder="Example: 130482121(2662)">
+<input id="userid" placeholder="User ID">
+<input id="serverid" placeholder="Server ID">
 
 <button onclick="cek()">Check Player</button>
 
@@ -120,42 +121,18 @@ line-height:1.6;
 
 <script>
 
-function parseID(text){
-let m=text.match(/(\\d+)\\((\\d+)\\)/)
-if(!m)return null
-return {id:m[1],server:m[2]}
-}
-
-function flag(code){
-const map={
-MY:"🇲🇾",
-ID:"🇮🇩",
-PH:"🇵🇭",
-SG:"🇸🇬",
-TH:"🇹🇭",
-VN:"🇻🇳"
-}
-return map[code]||"🌍"
-}
-
-function region(server){
-server=parseInt(server)
-
-if(server<2000) return "Asia"
-if(server<4000) return "SEA"
-if(server<6000) return "Europe"
-if(server<8000) return "America"
-return "Global"
-}
-
 async function cek(){
 
-let input=document.getElementById("gameid").value
-let parsed=parseID(input)
+let id=document.getElementById("userid").value
+let server=document.getElementById("serverid").value
 
-if(!parsed){
-document.getElementById("result").innerHTML="Format salah<br>Gunakan: 12345678(1234)"
+if(!id || !server){
+
+document.getElementById("result").innerHTML=
+"Masukkan User ID dan Server ID"
+
 return
+
 }
 
 document.getElementById("loading").style.display="block"
@@ -163,7 +140,7 @@ document.getElementById("result").innerHTML=""
 
 try{
 
-let res=await fetch(`/api/validasi?id=${parsed.id}&serverid=${parsed.server}`)
+let res=await fetch(`/api/validasi?id=${id}&serverid=${server}`)
 let data=await res.json()
 
 document.getElementById("loading").style.display="none"
@@ -172,8 +149,7 @@ if(data.status){
 
 document.getElementById("result").innerHTML=
 `🎮 Nickname : <b>${data.nickname}</b><br>
-${flag(data.country)} Country : ${data.country}<br>
-🌍 Region : ${region(parsed.server)}`
+🌍 Country : ${data.country}`
 
 }else{
 
@@ -189,7 +165,6 @@ document.getElementById("result").innerHTML="Server error"
 }
 
 }
-
 </script>
 
 </body>
