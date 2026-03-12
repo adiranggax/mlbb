@@ -10,15 +10,15 @@ const data = await validasi(id,serverid);
 
 res.json({
 status:true,
-nickname:data.nickname || "Unknown"
+nickname:data["in-game-nickname"] || data.nickname || "Unknown",
+country:data.country || "Unknown"
 });
 
 }catch(err){
 
 res.json({
-status:true,
-nickname:data["in-game-nickname"] || "Unknown",
-country:data.country || "Unknown"
+status:false,
+message:err.toString()
 });
 
 }
