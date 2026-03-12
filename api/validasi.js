@@ -1,26 +1,32 @@
-process.removeAllListeners('warning')
+import validasi from "../lib/validasi.js"
 
-const validasi = require("../lib/validasi")
+export default async function handler(req, res) {
 
-module.exports = async function(req,res){
+res.setHeader("Access-Control-Allow-Origin", "*")
+res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS")
+res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+
+if (req.method === "OPTIONS") {
+return res.status(200).end()
+}
+
+try {
 
 const { id, serverid } = req.query
 
-try{
+const data = await validasi(id, serverid)
 
-const data = await validasi(id,serverid)
-
-res.json({
-status:true,
-nickname:data["in-game-nickname"] || data.nickname,
-country:data.country
+res.status(200).json({
+status: true,
+nickname: data["in-game-nickname"],
+country: data.country
 })
 
-}catch(err){
+} catch (err) {
 
-res.json({
-status:false,
-message:err.toString()
+res.status(200).json({
+status: false,
+message: "ID tidak ditemukan"
 })
 
 }
